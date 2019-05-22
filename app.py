@@ -10,7 +10,7 @@ import json
 def geolocation():
     app.logger.info(request.get_json())
     headers = {'Content-type': 'application/json', 'Accept': 'application/json'}
-    r = requests.post(url="https://www.googleapis.com/geolocation/v1/geolocate?key=AIzaSyAp4CFGfNl1psTfOvK9rp9PuilvIAdIJUE",
+    r = requests.post(url="https://www.googleapis.com/geolocation/v1/geolocate?key=", #Insert new key here, old key is compromised through publication to git, whoops
                       data=request.get_data(), headers=headers)
     return str(r.text)
 
