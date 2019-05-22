@@ -139,8 +139,6 @@ def estimateLocation():
     print(r.status_code)
     print(r.json())
 
-estimateLocation()
-
 def calculateAccelData(data):
     import math
     calculatedData = []
@@ -160,7 +158,7 @@ gpsData = []
 
 import utime
 iterations = 1
-while False:
+while True:
     startTime = utime.ticks_ms()
 
     res = accel.acceleration()
