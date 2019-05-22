@@ -55,6 +55,7 @@ def request(method, url, data=None, json=None, headers={}, stream=None):
 
     s = usocket.socket()
     try:
+        print(addr)
         s.connect(addr)
         if proto == "https:":
             s = ussl.wrap_socket(s, server_hostname=host)

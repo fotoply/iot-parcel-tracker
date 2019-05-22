@@ -15,8 +15,8 @@ def log(s):
 
 
 
-AP_SSID = 'Hest123'
-AP_AUTH = (network.WLAN.WPA2, 'wwoo2206')
+AP_SSID = 'Pixel'
+AP_AUTH = (network.WLAN.WPA2, '17863860b3f7')
 
 AP_TIMEOUT = 5000
 GEOLOCATION_KEY = 'AIzaSyAp4CFGfNl1psTfOvK9rp9PuilvIAdIJUE'
@@ -116,23 +116,22 @@ log("Barometer is available")
 pyc.rgbled(0x00FF00)
 
 def estimateLocation():
-    url = "https://www.googleapis.com/geolocation/v1/geolocate?key=" + GEOLOCATION_KEY
-    data = """{
-      "homeMobileCountryCode": 238,
-      "homeMobileNetworkCode": 10,
-      "radioType": "lte",
-      "carrier": "TDC Denmark",
+    url = "http://192.168.43.253/geolocation"
+    data = {"homeMobileCountryCode": 238,"homeMobileNetworkCode": 10,"radioType": "lte",
+    "carrier": "TDC Denmark",
       "considerIp": "true",
       "cellTowers": [],
       "wifiAccessPoints": []
-    }"""
+    }
 
     nets = wlan.scan()
     accessPoints = []
     import struct
     for net in nets:
         accessPoints.append({"macAddress":"%x:%x:%x:%x:%x:%x" % struct.unpack("BBBBBB",net.bssid), "signalStrength":net.rssi, "age":net.sec*1000, "channel": net.channel})
-    data = data.replace("\"wifiAccessPoints\": []", "\"wifiAccessPoints\": " + str(accessPoints))
+
+    data["wifiAccessPoints"] = accessPoints
+    print(data)
 
     r = requests.post(url, json=data)
     print(r.status_code)
