@@ -13,10 +13,9 @@ from _thread import start_new_thread
 def log(s):
     print(s)
 
-
-
 AP_SSID = 'Hest123'
 AP_AUTH = (network.WLAN.WPA2, 'wwoo2206')
+ALARM_STATE = False
 
 AP_TIMEOUT = 5000
 GEOLOCATION_KEY = 'AIzaSyAp4CFGfNl1psTfOvK9rp9PuilvIAdIJUE'
@@ -56,11 +55,13 @@ def sensorFailedLoop():
         time.sleep(1)
 
 def activateBlinkAlarm():
-    while True:
+    ALARM_STATE = True
+    for x in range(1, 10): #10 cycles
         pyc.rgbled(0x000000)
         time.sleep(0.5)
         pyc.rgbled(0xFFFFFF)
         time.sleep(0.5)
+    ALARM_STATE = False
 
 def setNormalLEDState():
     pyc.rgbled(0x00FF00)
@@ -81,7 +82,6 @@ def client_socket_accept_loop():
         start_new_thread(client_recieve_loop,(clientSocket,clientAddress))
 
 hostSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-#host = socket.socket() #socket.gethostbyname(socket.gethostname())
 connected_ip = wlan.ifconfig()[0]
 log(connected_ip)
 hostSocket.bind((connected_ip, HOST_PORT))
