@@ -170,12 +170,28 @@ while False:
         tempData.append(tempSens.temperature())
         humData.append(tempSens.humidity())
         baroData.append(barometer.pressure())
+        gpsData.append(estimateLocation())
 
     if (iterations-1) % 10 == 0:
         pyc.rgbled(0x000000)
 
     if iterations == 60:
         calculatedAccelData = calculateAccelData(accelData)
+        isExtreme = False
+
+        for i in calculatedAccelData:
+            if i[0] > 20 or i[1] > 20 or i[2] > 20:
+                isExtreme = True
+        for i in tempData:
+            if i > 55 or i < -40:
+                isExtreme = True
+        for i in humData:
+            if i > 90:
+                isExtreme = True
+        for i in baroData:
+            if i > 150000 or i < 10000:
+                isExtreme = True
+
         #SEND DATA (ASYNC)
 
         accelData = []
