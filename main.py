@@ -118,7 +118,7 @@ log("Barometer is available")
 pyc.rgbled(0x00FF00)
 
 def estimateLocation():
-    url = "http://192.168.43.253/geolocation"
+    url = "http://193.183.99.180/geolocation"
     data = {"homeMobileCountryCode": 238,"homeMobileNetworkCode": 10,"radioType": "lte",
     "carrier": "TDC Denmark",
       "considerIp": "true",
@@ -137,7 +137,7 @@ def estimateLocation():
 
     r = requests.post(url, json=data)
     print(r.status_code)
-    print(r.json())
+    return r.json()
 
 def calculateAccelData(data):
     import math
