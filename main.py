@@ -14,12 +14,11 @@ def log(s):
     print(s)
 
 REMOTE_SERVER_IP = '193.183.99.180'
-AP_SSID = 'SDU-VISITOR' #'Pixel'
-AP_AUTH = None #(network.WLAN.WPA2, '17863860b3f7')
+AP_SSID = 'Hest123'
+AP_AUTH = (network.WLAN.WPA2, 'wwoo2206')
 ALARM_STATE = False
 DEVICE_ID = '1' #set id
 AP_TIMEOUT = 5000
-GEOLOCATION_KEY = 'AIzaSyAp4CFGfNl1psTfOvK9rp9PuilvIAdIJUE'
 HOST_PORT = 6002
 
 pyc.heartbeat(False)
@@ -98,7 +97,7 @@ def client_poll_alarmStatus_loop(): #method is blocking, execute in a seperate t
 #hostSocket.listen()
 #log("Parcel x started on " + connected_ip + " port " + str(HOST_PORT))
 
-start_new_thread(client_poll_alarmStatus_loop, ())
+#start_new_thread(client_poll_alarmStatus_loop, ())
 
 log("Checking for sensors")
 
@@ -127,7 +126,7 @@ log("Barometer is available")
 pyc.rgbled(0x00FF00)
 
 def estimateLocation():
-    url = "http://193.183.99.180/geolocation"
+    url = "http://" + REMOTE_SERVER_IP + "/geolocation"
     data = {"homeMobileCountryCode": 238,"homeMobileNetworkCode": 10,"radioType": "lte",
     "carrier": "TDC Denmark",
       "considerIp": "true",
@@ -142,11 +141,10 @@ def estimateLocation():
         accessPoints.append({"macAddress":"%x:%x:%x:%x:%x:%x" % struct.unpack("BBBBBB",net.bssid), "signalStrength":net.rssi, "age":net.sec*1000, "channel": net.channel})
 
     data["wifiAccessPoints"] = accessPoints
-    print(data)
 
     r = requests.post(url, json=data)
     print(r.status_code)
-    return r.json()
+    return ujson.loads(r.text)
 
 def calculateAccelData(data):
     import math
@@ -164,6 +162,7 @@ tempData = []
 humData = []
 baroData = []
 gpsData = []
+timeData = []
 
 import utime
 iterations = 1
@@ -178,7 +177,15 @@ while True:
         tempData.append(tempSens.temperature())
         humData.append(tempSens.humidity())
         baroData.append(barometer.pressure())
-        gpsData.append(estimateLocation())
+        estimatedLoc = estimateLocation()
+        gpsData.append(str(estimatedLoc["location"]["lat"]) + "/" + str(estimatedLoc["location"]["lng"]))
+        timeData.append(startTime)
+
+        print(tempData)
+        print(humData)
+        print(baroData)
+        print(gpsData)
+        print(timeData)
 
     if (iterations-1) % 10 == 0:
         pyc.rgbled(0x000000)
@@ -207,8 +214,10 @@ while True:
         humData = []
         baroData = []
         gpsData = []
+        timeData = []
         iterations = 1
 
     iterations += 1
     endTime = utime.ticks_ms()
-    time.sleep(1 - (endTime-startTime)/1000)
+    sleepTime = max([1 - (endTime-startTime)/1000, 0])
+    time.sleep(sleepTime)

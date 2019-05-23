@@ -13,7 +13,7 @@ def alarm():
 
 @app.route("/geolocation", methods = ['POST', 'GET'])
 def geolocation():
-    app.logger.info(request.get_json())
+    print(request.get_data())
     headers = {'Content-type': 'application/json', 'Accept': 'application/json'}
     r = requests.post(url="https://www.googleapis.com/geolocation/v1/geolocate?key=", #Insert new key here, old key is compromised through publication to git, whoops
                       data=request.get_data(), headers=headers)
@@ -30,7 +30,7 @@ def save():
 
     import csv
     with open(str(id) + '.csv', mode='a+') as csvFile:
-        fieldnames = ["acceleration", "temperature", "humidity", "barometer", "location"]
+        fieldnames = ["timestamp", "acceleration", "temperature", "humidity", "barometer", "location"]
         csvWriter = csv.DictWriter(csvFile, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL, fieldnames=fieldnames)
         writer.writerow(jData)
 
