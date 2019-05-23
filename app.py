@@ -5,6 +5,11 @@ app = Flask(__name__)
 import requests
 import json
 
+@app.route("/alarm")
+def alarm():
+    if request.args.get("id") == "1":
+        return "True"
+    return "False"
 
 @app.route("/geolocation", methods = ['POST', 'GET'])
 def geolocation():
