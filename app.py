@@ -7,9 +7,8 @@ import json
 
 @app.route("/alarm")
 def alarm():
-    if request.args.get("id") == "1":
-        return "True"
-    return "False"
+    import os
+    return str(os.path.isfile(request.args.get("id") + ".alarm"))
 
 @app.route("/geolocation", methods = ['POST', 'GET'])
 def geolocation():
@@ -25,15 +24,33 @@ def save():
     if id == None:
         return "ERROR"
 
-    data = request.get_data()
-    jData = json.loads(data)
+    jData = request.get_json()
+    #jData = json.loads(data)
+    print(jData)
 
     import csv
     with open(str(id) + '.csv', mode='a+') as csvFile:
-        fieldnames = ["timestamp", "acceleration", "temperature", "humidity", "barometer", "location"]
-        csvWriter = csv.DictWriter(csvFile, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL, fieldnames=fieldnames)
-        writer.writerow(jData)
+        lines = []
+        for key in jData:
+            for index in range(len(jData[key])):
+                if len(lines)-1 < index:
+                    line = {}
+                    lines.append(line)
+                else:
+                    line = lines[index]
 
+                print(key)
+                print(line)
+                value = jData[key]
+                print(value)
+                print(index)
+                line[key] = value[index]
+                print(line)
+
+        for line in lines:
+            fieldnames = ["timestamp", "acceleration", "temperature", "humidity", "barometer", "location", "extreme"]
+            csvWriter = csv.DictWriter(csvFile, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL, fieldnames=fieldnames)
+            csvWriter.writerow(line)
     return "OK"
 
 if __name__ == '__main__':

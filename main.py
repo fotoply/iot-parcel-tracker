@@ -14,15 +14,15 @@ def log(s):
     print(s)
 
 REMOTE_SERVER_IP = '193.183.99.180'
-AP_SSID = 'Hest123'
-AP_AUTH = (network.WLAN.WPA2, 'wwoo2206')
+AP_SSID = 'Pixel'
+AP_AUTH = (network.WLAN.WPA2, '11111111')
 
 #AP_AUTH = None
 #AP_SSID = 'SDU-VISITOR'
 
 ALARM_STATE = False
 DEVICE_ID = '1' #set id
-AP_TIMEOUT = 5000
+AP_TIMEOUT = 10000
 HOST_PORT = 6002
 
 pyc.heartbeat(False)
@@ -172,23 +172,30 @@ while True:
         pyc.rgbled(0x000000)
 
     if iterations == 60:
+        pyc.rgbled(0x00FFFF)
         calculatedAccelData = calculateAccelData(accelData)
-        isExtreme = False
+        isExtreme = [len(calculatedAccelData)*False]
 
         for i in calculatedAccelData:
             if i[0] > 20 or i[1] > 20 or i[2] > 20:
-                isExtreme = True
+                isExtreme[i] = True
         for i in tempData:
             if i > 55 or i < -40:
-                isExtreme = True
+                isExtreme[i] = True
         for i in humData:
             if i > 90:
-                isExtreme = True
+                isExtreme[i] = True
         for i in baroData:
             if i > 150000 or i < 10000:
-                isExtreme = True
+                isExtreme[i] = True
 
-        #SEND DATA (ASYNC)
+        url = "http://" + REMOTE_SERVER_IP + "/save?id=" + str(DEVICE_ID)
+        data = {"timestamp": timeData, "acceleration": calculatedAccelData, "temperature":tempData, "humidity": humData, "barometer":baroData, "location": gpsData, "extreme":isExtreme}
+        r = requests.post(url, json=data)
+        if r.text == "OK":
+            print("Everthing is OK")
+        else:
+            print("Something went wrong")
 
         accelData = []
         tempData = []
@@ -196,7 +203,7 @@ while True:
         baroData = []
         gpsData = []
         timeData = []
-        iterations = 1
+        iterations = 0
 
     iterations += 1
     endTime = utime.ticks_ms()
