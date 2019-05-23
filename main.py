@@ -16,6 +16,10 @@ def log(s):
 REMOTE_SERVER_IP = '193.183.99.180'
 AP_SSID = 'Hest123'
 AP_AUTH = (network.WLAN.WPA2, 'wwoo2206')
+
+#AP_AUTH = None
+#AP_SSID = 'SDU-VISITOR'
+
 ALARM_STATE = False
 DEVICE_ID = '1' #set id
 AP_TIMEOUT = 5000
@@ -66,38 +70,15 @@ def activateBlinkAlarm():
 def setNormalLEDState():
     pyc.rgbled(0x00FF00)
 
-def client_recieve_loop(clientSocket,clientAddress):
-    print("Accepted connection from " + str(clientAddress))
-    while True:
-        clientMessage = clientSocket.recv(1024)
-        if not clientMessage: break
-        if(str(clientMessage) == 'alarm'):
-            activateBlinkAlarm()
-        log("Message from client: " + str(clientMessage))
-    clientSocket.close()
-
-def client_socket_accept_loop():
-    while True:
-        clientSocket, clientAddress = hostSocket.accept()
-        start_new_thread(client_recieve_loop,(clientSocket,clientAddress))
-
 def client_poll_alarmStatus_loop(): #method is blocking, execute in a seperate thread
     while True:
         response = requests.get('http://' + REMOTE_SERVER_IP +'/alarm?id=' + DEVICE_ID)
-        log('Response from server: ' + str(response))
-        if response == 'True':
+        if response != None and str(response.text) == "True":
             activateBlinkAlarm()
         else:
             time.sleep(5)
 
-#hostSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-#connected_ip = wlan.ifconfig()[0]
-#log(connected_ip)
-#hostSocket.bind((connected_ip, HOST_PORT))
-#hostSocket.listen()
-#log("Parcel x started on " + connected_ip + " port " + str(HOST_PORT))
-
-#start_new_thread(client_poll_alarmStatus_loop, ())
+start_new_thread(client_poll_alarmStatus_loop, ())
 
 log("Checking for sensors")
 
