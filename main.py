@@ -13,12 +13,11 @@ from _thread import start_new_thread
 def log(s):
     print(s)
 
-
-
-AP_SSID = 'Pixel'
-AP_AUTH = (network.WLAN.WPA2, '17863860b3f7')
+REMOTE_SERVER_IP = '193.183.99.180'
+AP_SSID = 'SDU-VISITOR' #'Pixel'
+AP_AUTH = None #(network.WLAN.WPA2, '17863860b3f7')
 ALARM_STATE = False
-
+DEVICE_ID = '1' #set id
 AP_TIMEOUT = 5000
 GEOLOCATION_KEY = 'AIzaSyAp4CFGfNl1psTfOvK9rp9PuilvIAdIJUE'
 HOST_PORT = 6002
@@ -83,13 +82,23 @@ def client_socket_accept_loop():
         clientSocket, clientAddress = hostSocket.accept()
         start_new_thread(client_recieve_loop,(clientSocket,clientAddress))
 
-hostSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-connected_ip = wlan.ifconfig()[0]
-log(connected_ip)
-hostSocket.bind((connected_ip, HOST_PORT))
-hostSocket.listen()
-log("Parcel x started on " + connected_ip + " port " + str(HOST_PORT))
-start_new_thread(client_socket_accept_loop, ())
+def client_poll_alarmStatus_loop(): #method is blocking, execute in a seperate thread
+    while True:
+        response = requests.get('http://' + REMOTE_SERVER_IP +'/alarm?id=' + DEVICE_ID)
+        log('Response from server: ' + str(response))
+        if response == 'True':
+            activateBlinkAlarm()
+        else:
+            time.sleep(5)
+
+#hostSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+#connected_ip = wlan.ifconfig()[0]
+#log(connected_ip)
+#hostSocket.bind((connected_ip, HOST_PORT))
+#hostSocket.listen()
+#log("Parcel x started on " + connected_ip + " port " + str(HOST_PORT))
+
+start_new_thread(client_poll_alarmStatus_loop, ())
 
 log("Checking for sensors")
 
